@@ -339,3 +339,40 @@ error monitoring. I would also consider adding more advanced task
 management features and preparing the application for production
 deployment. These improvements would make the API more reliable, secure,
 and easier to maintain.
+
+
+## 8. Reflection Questions
+
+### 1. What was the most challenging part of building this boilerplate? How did you overcome it?
+
+The most challenging part was organizing the project structure and making sure all components worked together properly, especially TypeORM, database migrations, middleware, validation, and centralized error handling. I overcame this by following the project requirements step by step, understanding the purpose of each file, testing the endpoints, and fixing errors as they appeared.
+
+### 2. How does this boilerplate differ from your Midterm project? What specific improvements did you make?
+
+Compared to my Midterm project, this boilerplate has a more organized and scalable structure. I added centralized error handling, Joi request validation, Winston structured logging, environment configuration, database migrations, reusable middleware, and improved API organization. These improvements make the application easier to maintain, debug, and expand.
+
+### 3. Why is centralized error handling better than try-catch in every controller?
+
+Centralized error handling reduces repetitive code because controllers do not need to handle every error individually. It provides consistent error responses, makes debugging easier, and keeps controllers clean and focused on business logic.
+
+### 4. How does request validation with Joi improve security and code quality?
+
+Joi validates incoming request data before it reaches the application logic. It helps prevent invalid or unexpected data, reduces potential errors, and ensures that required fields and data formats follow the expected rules. It also makes the code more reliable and easier to maintain.
+
+### 5. What's the difference between synchronize: true and migrations? Why are migrations essential for production?
+
+`synchronize: true` automatically updates database tables based on entity changes. However, it can cause unexpected database changes or data loss.
+
+Migrations provide controlled and versioned database schema changes. They are essential in production because they allow developers to track, apply, and reverse database changes safely and consistently across different environments.
+
+### 6. How does structured logging (Winston) help in production debugging compared to console.log?
+
+Winston provides structured and organized logs with timestamps, severity levels, and different output files. Unlike `console.log`, it allows developers to separate errors from regular application activity, making it easier to monitor the application and investigate problems in production.
+
+### 7. If you had to add a new feature (e.g., Product CRUD), how would you use this boilerplate? What would you need to add?
+
+I would follow the existing project structure and use the current implementation as a reference. I would add a Product entity, create a database migration, implement a Product controller and routes, add Joi validation schemas, and register the routes in the main application. I would also add the necessary CRUD operations and test each endpoint to make sure everything works correctly.
+
+### 8. What additional features would you add to make this boilerplate even more production-ready?
+
+I would add automated testing using Jest, API documentation using Swagger, role-based access control, refresh token authentication, rate limiting, Docker support, and CI/CD integration. These features would improve security, reliability, scalability, and deployment efficiency.
