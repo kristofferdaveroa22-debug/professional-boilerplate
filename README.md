@@ -376,3 +376,253 @@ I would follow the existing project structure and use the current implementation
 ### 8. What additional features would you add to make this boilerplate even more production-ready?
 
 I would add automated testing using Jest, API documentation using Swagger, role-based access control, refresh token authentication, rate limiting, Docker support, and CI/CD integration. These features would improve security, reliability, scalability, and deployment efficiency.
+
+# Professional Boilerplate API
+
+A professional RESTful API built with **Node.js, Express, TypeScript, TypeORM, and MySQL**, featuring JWT-based authentication, password hashing, request validation, centralized error handling, structured logging, and database migrations.
+
+This project provides a reusable backend foundation with secure authentication and organized API architecture.
+
+---
+
+## 1. Project Description
+
+The Professional Boilerplate API is designed to provide a structured and reusable backend system for building web applications.
+
+### Key Features
+
+- Node.js and Express REST API
+- TypeScript for type safety
+- MySQL database integration
+- TypeORM for database management
+- JWT-based user authentication
+- Password hashing using bcrypt
+- Protected API routes using authentication middleware
+- Joi request validation
+- Centralized error handling
+- Structured logging using Winston
+- Database migrations and seeders
+- Environment variable configuration
+- Pagination support for user records
+
+---
+
+## 2. Authentication Flow
+
+This project uses JSON Web Tokens (JWT) to authenticate users.
+
+The authentication process follows these steps:
+
+1. The user submits their email and password through the login endpoint.
+2. The server searches for the user in the database.
+3. The server checks whether the account is active.
+4. bcrypt compares the submitted password with the stored hashed password.
+5. If the credentials are correct, the server generates a JWT token.
+6. The server returns the token and user information.
+7. The client stores the token and includes it in subsequent protected requests.
+8. The authentication middleware verifies the token.
+9. If the token is valid, the middleware attaches the user's information to the request.
+10. The request continues to the protected controller.
+
+### Authentication Flow Diagram
+
+```text
+Client
+  |
+  v
+POST /api/auth/login
+  |
+  v
+Validate Email and Password
+  |
+  v
+Find User in Database
+  |
+  v
+Compare Password using bcrypt
+  |
+  v
+Generate JWT Token
+  |
+  v
+Return Token to Client
+  |
+  v
+Client Sends Bearer Token
+  |
+  v
+Authentication Middleware
+  |
+  v
+Verify JWT Token
+  |
+  v
+Attach User Information
+  |
+  v
+Access Protected Endpoint
+```
+
+---
+
+## 3. How to Get an Authentication Token
+
+Users must log in to receive a JWT token.
+
+### Login Endpoint
+
+**POST** `/api/auth/login`
+
+Request Body:
+
+```json
+{
+    "email": "test@example.com",
+    "password": "Test123!"
+}
+```
+
+Successful Response:
+
+```json
+{
+    "success": true,
+    "message": "Login successful",
+    "data": {
+        "token": "YOUR_JWT_TOKEN",
+        "user": {
+            "id": 2,
+            "email": "test@example.com",
+            "name": "Test User"
+        }
+    }
+}
+```
+
+Copy the `token` value from the response.
+
+### Seeded Test Accounts
+
+| Name | Email | Password |
+|---|---|---|
+| Admin User | admin@example.com | Admin123! |
+| Test User | test@example.com | Test123! |
+
+These are development seed credentials only. Do not use them in production.
+
+---
+
+## 4. How to Use the JWT Token
+
+Protected endpoints require a valid JWT token.
+
+In Postman:
+
+1. Open the request.
+2. Select the Authorization tab.
+3. Choose Bearer Token.
+4. Paste your JWT token.
+5. Click Send.
+
+Alternatively, include the following HTTP header:
+
+```http
+Authorization: Bearer YOUR_JWT_TOKEN
+```
+
+### Example Protected Request
+
+```http
+GET /api/users
+Authorization: Bearer YOUR_JWT_TOKEN
+```
+
+If the token is valid, the server processes the request.
+
+If no token is provided, the server returns:
+
+```json
+{
+    "success": false,
+    "error": {
+        "code": "UNAUTHORIZED",
+        "message": "No token provided"
+    }
+}
+```
+
+---
+
+## 5. Public vs. Protected Endpoints
+
+### Public Endpoints
+
+These endpoints do not require authentication.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/auth/login` | Authenticate a user and generate a JWT token |
+| GET | `/health` | Check API health |
+
+### Protected Endpoints
+
+These endpoints require a valid JWT token.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/auth/me` | Get the currently authenticated user |
+| GET | `/api/users` | Retrieve all users with pagination |
+| GET | `/api/users/:id` | Retrieve a specific user |
+| POST | `/api/users` | Create a new user |
+| PUT | `/api/users/:id` | Update a user |
+| DELETE | `/api/users/:id` | Delete a user |
+
+All routes registered in `userRoutes` are protected using `authMiddleware`.
+
+---
+
+# 6. Reflection Questions and Answers
+
+### 1. What is the difference between authentication and authorization? Give a real-world example of each.
+
+Authentication is the process of verifying someone's identity. It answers the question, "Who are you?"
+
+Authorization determines what an authenticated user is allowed to access or perform. It answers the question, "What are you allowed to do?"
+
+For example, when logging into an online banking application, entering the correct username and password is authentication. Being allowed to view your own account but not another person's account is authorization.
+
+### 2. Why is JWT considered stateless and how does that benefit scalability?
+
+JWT is considered stateless because the server does not need to maintain a session record for every authenticated user.
+
+The token contains the necessary information for authentication, and the server verifies its signature whenever a protected request is received.
+
+This benefits scalability because multiple server instances can independently validate tokens without sharing session storage. It makes it easier to distribute requests across multiple servers.
+
+### 3. What are the three parts of a JWT token and what does each part do?
+
+A JWT consists of three parts separated by periods.
+
+1. **Header** - Contains information about the token type and signing algorithm.
+2. **Payload** - Contains claims or information about the user, such as user ID and email.
+3. **Signature** - Verifies that the token has not been modified and was signed using the correct secret.
+
+These three parts are encoded and combined to form the JWT.
+
+### 4. Why should you never put sensitive data like passwords in the JWT payload?
+
+JWT payloads are encoded, not encrypted by default. This means anyone who obtains the token can decode and read its payload.
+
+Putting passwords, credit card information, or other sensitive data inside the payload could expose private information.
+
+Only necessary information, such as a user ID and email, should be included.
+
+### 5. How does bcrypt protect user passwords? What is the purpose of the salt and rounds?
+
+bcrypt protects passwords by hashing them before storing them in the database.
+
+Instead of saving the original password, the application saves its hashed version.
+
+A salt is a random value added during hashing to ensure that identical passwords produce different hashes.
+
+Rounds determine the computational cost of the hashing
