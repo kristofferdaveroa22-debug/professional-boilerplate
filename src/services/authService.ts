@@ -1,4 +1,3 @@
-
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { AppDataSource } from '../config/data-source';
@@ -40,21 +39,40 @@ export class AuthService {
         // 1. Find user by email
         const user = await userRepository.findOne({
             where: { email },
-            select: ['id', 'email', 'name', 'password', 'isActive'],
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                password: true,
+                isActive: true,
+                isVerified: true,
+            },
         });
 
+        // 2. Check if user exists
         if (!user) {
             logger.warn('Login attempt with non-existent email', { email });
+
             throw new UnauthorizedError('Invalid email or password');
         }
 
-        // 2. Check if account is active
+        // 3. Check if email is verified
+        if (!user.isVerified) {
+            logger.warn('Login attempt for unverified account', { email });
+
+            throw new UnauthorizedError(
+                'Please verify your email address before logging in. Check your inbox for the verification link.'
+            );
+        }
+
+        // 4. Check if account is active
         if (!user.isActive) {
             logger.warn('Login attempt for inactive account', { email });
+
             throw new UnauthorizedError('Account is deactivated');
         }
 
-        // 3. Compare passwords
+        // 5. Compare passwords
         const isPasswordValid = await bcrypt.compare(
             password,
             user.password
@@ -62,10 +80,11 @@ export class AuthService {
 
         if (!isPasswordValid) {
             logger.warn('Login attempt with wrong password', { email });
+
             throw new UnauthorizedError('Invalid email or password');
         }
 
-        // 4. Generate JWT token
+        // 6. Generate JWT token
         const tokenPayload: TokenPayload = {
             userId: user.id,
             email: user.email,
@@ -84,7 +103,7 @@ export class AuthService {
             email,
         });
 
-        // 5. Return token and user data
+        // 7. Return token and user data
         return {
             token,
             user: {
@@ -142,7 +161,13 @@ export class AuthService {
 
         const user = await userRepository.findOne({
             where: { id: decoded.userId },
-            select: ['id', 'email', 'name', 'isActive', 'createdAt'],
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                isActive: true,
+                createdAt: true,
+            },
         });
 
         if (!user) {

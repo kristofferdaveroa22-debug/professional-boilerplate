@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from 'express';
 import Joi from 'joi';
 import { ValidationError } from '../utils/errors';
@@ -22,9 +21,7 @@ export const validate = (
                 message: detail.message,
                 type: detail.type,
             }));
-
             const message = details.map(d => d.message).join(', ');
-
             return next(new ValidationError(message, details));
         }
 
@@ -40,7 +37,6 @@ export const validate = (
         } else {
             req.params = value;
         }
-
         next();
     };
 };

@@ -626,3 +626,24 @@ Instead of saving the original password, the application saves its hashed versio
 A salt is a random value added during hashing to ensure that identical passwords produce different hashes.
 
 Rounds determine the computational cost of the hashing
+
+
+1. Email verification: Confirms the user owns the email address. It helps prevent fake accounts, mistyped emails, and unauthorized use of someone else’s email.
+
+2. Always return success: The forgot-password endpoint gives the same response whether or not the email exists. This prevents attackers from discovering registered accounts.
+
+3. Verification vs. reset token: A verification token confirms email ownership and usually lasts 24 hours. A reset token allows password changes and usually lasts 1 hour because it grants access to a sensitive account action.
+
+4. crypto.randomBytes(32): It generates cryptographically secure random data that is difficult to predict. Math.random() and Date.now() are not suitable for secure tokens because their values may be predictable.
+
+5. User never verifies: The account remains unverified, and login is blocked. The user can request another verification email. The system could also delete old unverified accounts after a set period.
+
+6. Clearing tokens after use: Prevents a token from being reused. This reduces the risk of someone using a previously valid link to verify an account or reset its password again.
+
+7. Email enumeration: It is when someone tries to discover which email addresses have accounts in a system. Returning the same response for existing and non-existing emails prevents the forgot-password endpoint from revealing that information.
+
+8. Adding 2FA: I would require users to verify their email and enroll a second factor, such as an authenticator app. After entering their password, they would also enter a time-based code. I would protect recovery codes, rate-limit attempts, and provide a secure recovery process.
+
+9. Ethereal vs. SendGrid: Ethereal is useful for development because it captures test emails without delivering them to real inboxes. SendGrid is designed for production delivery and provides sending infrastructure and delivery monitoring, but requires configuration and may have costs or sending limits.
+
+10. Emails marked as spam: I would check the email content and sending logs, configure SPF, DKIM, and DMARC, and use a verified sending domain. I would also monitor bounce and spam-complaint rates, avoid sending unnecessary emails, and provide a way to request a new verification or reset email.

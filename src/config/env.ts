@@ -18,6 +18,15 @@ const envSchema = Joi.object({
     
     JWT_SECRET: Joi.string().min(64).required(),
     JWT_EXPIRES_IN: Joi.string().default('1d'),
+
+    // Email configuration
+   SMTP_HOST: Joi.string().required(),
+   SMTP_PORT: Joi.number().default(587),
+   SMTP_USER: Joi.string().required(),
+   SMTP_PASS: Joi.string().required(),
+   EMAIL_FROM: Joi.string().email().required(),
+
+
 }).unknown();
 
 const { value: env, error } = envSchema.prefs({ 
@@ -28,12 +37,14 @@ if (error) {
     throw new Error(`❌ Environment validation error: ${error.message}`);
 }
 
+
 export const config = {
     env: env.NODE_ENV,
     isDev: env.NODE_ENV === 'development',
     isProd: env.NODE_ENV === 'production',
     isTest: env.NODE_ENV === 'test',
     port: env.PORT,
+
     db: {
         host: env.DB_HOST,
         port: env.DB_PORT,
@@ -41,12 +52,23 @@ export const config = {
         password: env.DB_PASSWORD,
         database: env.DB_DATABASE,
     },
+
     frontendUrl: env.FRONTEND_URL,
 
- // ADD JWT config
- jwt: {
-    secret: env.JWT_SECRET,
-    expiresIn: env.JWT_EXPIRES_IN,
-},
+    jwt: {
+        secret: env.JWT_SECRET,
+        expiresIn: env.JWT_EXPIRES_IN,
+    },
 
+    // Email configuration
+    email: {
+        host: env.SMTP_HOST,
+        port: env.SMTP_PORT,
+        user: env.SMTP_USER,
+        pass: env.SMTP_PASS,
+        from: env.EMAIL_FROM,
+    },
 };
+
+
+

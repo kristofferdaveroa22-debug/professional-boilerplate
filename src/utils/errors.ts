@@ -13,7 +13,7 @@ export class AppError extends Error {
         this.statusCode = statusCode;
         this.errorCode = errorCode;
         this.isOperational = isOperational;
-        
+
         Error.captureStackTrace(this, this.constructor);
         Object.setPrototypeOf(this, new.target.prototype);
     }
@@ -26,6 +26,12 @@ export class NotFoundError extends AppError {
             : `${resource} not found`;
 
         super(message, 404, 'NOT_FOUND');
+    }
+}
+
+export class BadRequestError extends AppError {
+    constructor(message: string) {
+        super(message, 400, 'BAD_REQUEST');
     }
 }
 
